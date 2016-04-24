@@ -1,11 +1,13 @@
 package main
 
-import "sort"
-import "net/http"
-import "fmt"
-import "io/ioutil"
-import "regexp"
-import "strings"
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"regexp"
+	"sort"
+	"strings"
+)
 
 const ResourceUrl = "https://s3-us-west-2.amazonaws.com/periscope-public/alice-in-wonderland.txt"
 
@@ -28,7 +30,7 @@ func (sm *sortedBagOfWords) Len() int {
 func (sm *sortedBagOfWords) Less(i, j int) bool {
 	countOne := sm.m[sm.s[i]]
 	countTwo := sm.m[sm.s[j]]
-	if (countOne == countTwo) {
+	if countOne == countTwo {
 		return strings.Compare(sm.s[i], sm.s[j]) < 0
 	}
 	return countTwo < countOne
@@ -37,8 +39,6 @@ func (sm *sortedBagOfWords) Less(i, j int) bool {
 func (sm *sortedBagOfWords) Swap(i, j int) {
 	sm.s[i], sm.s[j] = sm.s[j], sm.s[i]
 }
-
-
 
 func (m bagOfWords) sort() sortedBagOfWords {
 	sm := sortedBagOfWords{m: m, s: make([]string, len(m))}
@@ -49,14 +49,13 @@ func (m bagOfWords) sort() sortedBagOfWords {
 	}
 	sort.Sort(&sm)
 	return sm
-}	
+}
 
 func sanitize(body []byte) string {
 	unquoted := QuoteRegex.ReplaceAll(body, []byte(""))
 	undashed := DashRegex.ReplaceAll(unquoted, []byte(" "))
 	unpunct := PunctuationRegex.ReplaceAll(undashed, []byte(" "))
 	unspaced := WhitespaceRegex.ReplaceAll(unpunct, []byte(" "))
-
 	return strings.ToLower(string(unspaced))
 }
 
@@ -69,11 +68,11 @@ func bagOfWordsify(tokens []string) bagOfWords {
 	for _, t := range tokens {
 		bagOfWords[t]++
 	}
-	return bagOfWords 
+	return bagOfWords
 }
 
 func main() {
-    unsortedMap := make(bagOfWords)
+	unsortedMap := make(bagOfWords)
 	unsortedMap["a"] = 1
 	resp, err := http.Get(ResourceUrl)
 	defer resp.Body.Close()
